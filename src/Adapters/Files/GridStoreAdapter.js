@@ -15,16 +15,19 @@ export class GridStoreAdapter extends FilesAdapter {
   _databaseURI: string;
   _connectionPromise: Promise<Db>;
 
-  constructor(mongoDatabaseURI = defaults.DefaultMongoURI) {
+  constructor(mongoDatabaseURI = defaults.DefaultMongoURI, mongoOptions = {}) {
     super();
     this._databaseURI = mongoDatabaseURI;
+    this._mongoOptions = mongoOptions;
+    this._mongoOptions.useNewUrlParser = true;
   }
 
   _connect() {
     if (!this._connectionPromise) {
-      this._connectionPromise = MongoClient.connect(this._databaseURI).then(
-        client => client.db(client.s.options.dbName)
-      );
+      this._connectionPromise = MongoClient.connect(
+        this._databaseURI,
+        this._mongoOptions
+      ).then(client => client.db(client.s.options.dbName));
     }
     return this._connectionPromise;
   }
